@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body,html{
+            overflow: hidden;
+        }
+        div{
+            position: absolute;
+            border-radius:50%;
+        }
+        .ac{
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            margin:auto;
+            z-index:111;
+        }
+    </style>
+</head>
+<body>
+</body>
+<script>
+     class Circle{
+         constructor(wrap,k=300){
+            this.wrap = wrap
+            this.k = k
+         }  
+         init(){
+             this.createEl()
+         }
+         createEl(){
+             this.element = document.createElement('div')
+             this.element.className="ac"
+             this.setStyle(this.element,{
+                 width:this.k+'px',
+                 height:this.k+'px',
+                 background:this.setBg()
+             })
+             this.wrap.appendChild(this.element)
+             this.element.addEventListener('click',(e)=>{
+                 this.change(e)
+             })
+         }
+             
+         change(e){
+              let w = e.target.offsetWidth
+              let iCur = this.getRan(30,w)
+                if(w-15>30){
+                    this.el = document.createElement('div')
+                    this.setStyle(this.el, {
+                        width: iCur + 'px',
+                        height: iCur + 'px',
+                        background: this.setBg(),
+                        top:  e.target.offsetTop+ 'px',
+                        left: e.target.offsetLeft + 'px'
+                    })
+                    animate(e.target, {
+                        width: w - 30,
+                        height: w - 30
+                    })
+                    animate(this.el,{
+                        top: this.getRan(e.target.offsetTop -w, w + e.target.offsetTop+w/2),
+                        left: this.getRan(e.target.offsetLeft -w, w + e.target.offsetLeft+w/2)
+                    })
+                    this.wrap.appendChild(this.el)
+                    this.el.addEventListener('click', (e) => {
+                        this.change(e)
+                    })
+                }
+                   
+         }
+         setStyle(el, json) {
+             for (let attr in json) {
+                 Reflect.set(el.style, attr, json[attr])
+             }
+         }
+         //背景色
+         setBg() {
+             return `rgb(${this.getRan(1, 255)},${this.getRan(1, 255)},${this.getRan(1, 255)})`
+         }
+         getRan(min,max){
+             return Math.floor(Math.random()*(max+1-min)+min)
+         }
+     }
+    new Circle(document.body).init()
+    function animate(obj, json, fn) {
+            clearInterval(obj.timer);
+            obj.timer = setInterval(function () {
+                var flag = true;
+                for (var attr in json) {
+                    var iCur = 0;
+                    if (attr == 'opacity') {
+                        iCur = Math.round(parseFloat(getStyle(obj, attr)) * 100);
+                    } else {
+                        iCur = parseInt(getStyle(obj, attr));
+                    }
+                    var iSpeed = (parseInt(json[attr]) - iCur) / 8;
+                    iSpeed = iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed);
+                    if (iCur != json[attr]) {
+                        flag = false;
+                        if (attr == "opacity") {
+                            obj.style.opacity = (iCur + iSpeed) / 100;
+                            obj.style.filter = 'alpha(opacity=' + (iCur + iSpeed) + ')';
+                        } else {
+                            obj.style[attr] = iCur + iSpeed + "px";
+                        }
+                    }
+                }
+
+                if (flag) {
+                    clearInterval(obj.timer);
+                    fn && fn();
+                }
+
+            }, 10)
+        }
+
+        function getStyle(obj, attr) {
+            if (obj.currentStyle) {
+                return obj.currentStyle[attr];
+            } else {
+                return getComputedStyle(obj, null)[attr];
+            }
+        }
+</script>
+</html>
